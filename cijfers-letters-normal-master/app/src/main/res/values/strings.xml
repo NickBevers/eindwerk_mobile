@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Test_grid_cards</string>
+    <string name="player1_name">John Doe</string>
+    <string name="player2_name">Jane Doe</string>
+
+    <!--Toast messages-->
+    <string name="invalid">Your word is not valid!</string>
+    <string name="player1_win">Player 1 wins!</string>
+    <string name="player2_win">Player 2 wins!</string>
+    <string name="draw">Draw!</string>
+    <string name="no_winner">No points!</string>
+
+    <!--Buttons from layout files-->
+    <string name="lowNum">Low</string>
+    <string name="highNum">High</string>
+    <string name="vowel">Vowel</string>
+    <string name="consonant">Consonant</string>
+    <string name="check">Check</string>
+
+</resources>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Number">
+
+    <!-- Score of player 1 -->
+    <TextView
+        android:id="@+id/score_player1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+        android:gravity="start"
+        android:textSize="15sp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+         />
+
+    <!-- Score of player 2 -->
+    <TextView
+        android:id="@+id/score_player2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingEnd="5dp"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+        android:textSize="15sp"
+        android:gravity="end"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <!-- Name of player 1 -->
+    <TextView
+        android:id="@+id/tv_player1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/player1_name"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_player1"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <!-- Name of player 2 -->
+    <TextView
+        android:id="@+id/tv_player2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/player2_name"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_player2"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <!-- Inputfield of player 1 -->
+    <EditText
+        android:id="@+id/et_player1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:inputType="number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_player1"
+        app:layout_constraintWidth_percent="0.5"
+        android:autofillHints=" "
+        tools:ignore="LabelFor" />
+
+    <!-- Inputfield of player 2 -->
+    <EditText
+        android:id="@+id/et_player2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_player2"
+        app:layout_constraintWidth_percent="0.5"
+        android:autofillHints=" "
+        android:inputType="number"
+        tools:ignore="LabelFor" />
+
+    <!-- Button CHECK for finding the winner -->
+    <Button
+        android:id="@+id/check_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/check"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_player1" />
+
+    <!-- Textview for the cards -->
+    <TextView
+        android:id="@+id/tv_random"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/gridlayout"
+        app:layout_constraintTop_toBottomOf="@+id/check_button" />
+
+    <!-- Gridlayout for the cards -->
+    <GridLayout
+        android:id="@+id/gridlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignBounds"
+        android:columnCount="3"
+        android:padding="20dp"
+        android:rowCount="2"
+        android:useDefaultMargins="true"
+        app:layout_constraintBottom_toTopOf="@+id/btn_low_number"
+        tools:layout_editor_absoluteX="1dp" />
+
+    <!-- Button HIGH for picking a high number -->
+    <Button
+        android:id="@+id/btn_high_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/highNum"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_low_number" />
+
+    <!-- Button LOW for picking a low number -->
+    <Button
+        android:id="@+id/btn_low_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lowNum"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_high_number"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
