@@ -11,7 +11,7 @@ public class Gamestate_viewmodel extends ViewModel{
     public int scorePlayer1 = 0;
     public int scorePlayer2 = 0;
     public int numberOfGames = 1; //Amount of games to be played +1
-    public int timerDuration = 5000; // timer duration in milliseconds
+    public int timerDuration = 10000; // timer duration in milliseconds
     public int player1Difference;
     public int player2Difference;
     public int player1Wins = 0;

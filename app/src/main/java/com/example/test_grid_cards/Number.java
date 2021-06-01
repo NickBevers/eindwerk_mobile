@@ -40,6 +40,7 @@ public class Number extends Fragment {
     Timer t = new Timer();
     private static final int PERIOD = 1000;
     public MutableLiveData<Integer> number = new MutableLiveData<Integer>();
+    ProgressBar pb;
     MutableLiveData<Integer> ronde;
     Random random = new Random();
     public int randomNum;
@@ -72,6 +73,7 @@ public class Number extends Fragment {
         numberViewModel = new ViewModelProvider(requireActivity()).get(Number_viewmodel.class);
         editText1 = v.findViewById(R.id.et_player1);
         editText2 = v.findViewById(R.id.et_player2);
+        pb = requireActivity().findViewById(R.id.progress_bar);
 
         btn_Check = v.findViewById(R.id.check_button);
         btn_Check.setVisibility(View.INVISIBLE);
@@ -161,8 +163,10 @@ public class Number extends Fragment {
         });
 
         // update the progressbar according to the number(timer)
-        ProgressBar pb = requireActivity().findViewById(R.id.progress_bar);
         //pb::setProgress == (number -> pb.setProgress(number)
+        //pb.setMax(gameViewModel.timerDuration);
+        // pb.setMax(gameViewModel.timerDuration);
+        pb.setMax(gameViewModel.timerDuration / 1000);
         number.observe(requireActivity() , pb::setProgress);
     }
 

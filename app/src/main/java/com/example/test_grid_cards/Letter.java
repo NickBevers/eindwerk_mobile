@@ -99,7 +99,8 @@ public class Letter extends Fragment {
 
         // ↓ set progressbar to correct UI element and set the value of the pb
         ProgressBar pb = requireActivity().findViewById(R.id.progress_bar);
-        //pb::setProgress == (number -> pb.setProgress(number)
+        //pb::setProgress == (number -> pb.setProgress(number);
+        pb.setMax(gameViewModel.timerDuration);
         letter.observe(requireActivity() , pb::setProgress);
     }
 
