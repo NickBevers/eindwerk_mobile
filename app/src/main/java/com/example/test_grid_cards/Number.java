@@ -165,7 +165,7 @@ public class Number extends Fragment {
                 targetNum = randomNum;
                 tv.setText(String.format(Locale.ENGLISH, "Number to reach: %d", targetNum));
                 startTimer(requireView());
-                solver(numberArray, randomNum);
+                solve(numberArray, randomNum);
             }
         });
 
@@ -214,7 +214,7 @@ public class Number extends Fragment {
         numberViewModel.clearNumber();
     }
 
-    public void solver (ArrayList numbers, int target) {
+    public void solve (ArrayList numbers, int target) {
         // set up the solver
         numSolver.setInput(numbers, target);
 

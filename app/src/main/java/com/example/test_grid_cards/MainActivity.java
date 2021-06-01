@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             if (viewModel.gameType < viewModel.numberOfGames){
                 if(round.equals(0)){
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.frag_player, number_frag)
+                            .replace(R.id.frag_player, letter_frag)
                             .commit();
                 }
                 else if (round.equals(1)){

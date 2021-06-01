@@ -65,7 +65,7 @@ public class Letter_viewmodel extends AndroidViewModel {
     public void pickVowel() {
         ArrayList<Character> list = getLetters().getValue();
         assert list != null;
-        if (list.size() < 6){
+        if (list.size() < 9){
             char c;
             do {
                 c = pickALetter();
@@ -80,7 +80,7 @@ public class Letter_viewmodel extends AndroidViewModel {
     public void pickConsonant() {
         ArrayList<Character> list = getLetters().getValue();
         assert list != null;
-        if (list.size() < 6){
+        if (list.size() < 9){
             char c;
             do {
                 c = pickALetter();

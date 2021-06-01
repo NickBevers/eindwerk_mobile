@@ -21,9 +21,14 @@ import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import be.bluebanana.zakisolver.LetterSolver;
+
+import static android.content.ContentValues.TAG;
 
 public class Letter extends Fragment {
     // Add all variables (no database structure)
@@ -33,6 +38,7 @@ public class Letter extends Fragment {
     public boolean result1;
     public boolean result2;
     private int maxLetters = 9;
+    final LetterSolver letSolver = new LetterSolver();
     private
 
     View v;
@@ -60,6 +66,7 @@ public class Letter extends Fragment {
         letter.setValue(0);
         editText1 = v.findViewById(R.id.et_player1);
         editText2 = v.findViewById(R.id.et_player2);
+        letSolver.loadDictionary(requireActivity(), R.raw.dictionary);
         return v;
     }
 
@@ -85,7 +92,7 @@ public class Letter extends Fragment {
         // ↓ check if the letterArray (cards in cardview) contains 9 letters
         // if not so, draw a new card, if so, start a timer
         letterViewModel.getLetters().observe(getViewLifecycleOwner(), letterArray -> {
-            if (letterArray.size() > 0 && letterArray.size() <= maxLetters){
+            if (letterArray.size() > 0 && letterArray.size() < maxLetters){
                 View cardView = getLayoutInflater().inflate(R.layout.cardlayout, cardGridLayout, false);
                 TextView tv = cardView.findViewById(R.id.number_card_text);
                 tv.setText(String.valueOf(letterArray.get(letterArray.size()-1)));
@@ -94,6 +101,7 @@ public class Letter extends Fragment {
 
             if (letterArray.size() == maxLetters){
                 startTimer(requireView());
+                solve(letterArray);
             }
         });
 
@@ -194,4 +202,23 @@ public class Letter extends Fragment {
         letterViewModel.clearLetter();
     }
 
+    public void solve (ArrayList letters) {
+        // set up the solver
+        letSolver.setInput(letters);
+
+        // Start the solver
+        letSolver.solve(
+                results -> {
+                    Log.d("ZAKI", String.format("Found %d matches.", results.size()));
+
+                    if (results.size() == 0) {
+                        Log.d(TAG, "solve: No solutions found.");
+                        return;
+                    }
+                    results.stream()
+                            .limit(10)
+                            .forEach(result -> Log.d(TAG, "LETTERS RESULT: " + result));
+                }
+        );
+    }
 }
