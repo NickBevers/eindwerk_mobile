@@ -67,12 +67,7 @@ public class Letter extends Fragment {
         editText1 = v.findViewById(R.id.et_player1);
         editText2 = v.findViewById(R.id.et_player2);
         letSolver.loadDictionary(requireActivity(), R.raw.dictionary);
-        return v;
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         // ↓ set the layout for the 2 textfields that contain the score of both players, and set their scores in the textfields
         cardGridLayout = v.findViewById(R.id.gridlayout);
         TextView tv_player1 = v.findViewById(R.id.score_player1);
@@ -110,7 +105,9 @@ public class Letter extends Fragment {
         //pb::setProgress == (number -> pb.setProgress(number);
         pb.setMax(gameViewModel.timerDuration);
         letter.observe(requireActivity() , pb::setProgress);
+        return v;
     }
+
 
     public void startTimer(View w) {
         // ↓ start the timer and set it's value to the current value of letter + 1
@@ -204,21 +201,19 @@ public class Letter extends Fragment {
 
     public void solve (ArrayList letters) {
         // set up the solver
-        letSolver.setInput(letters);
+        letSolver.setInput(letters, results -> {
+            Log.d("ZAKI", String.format("Found %d matches.", results.size()));
+
+            if (results.size() == 0) {
+                Log.d(TAG, "solve: No solutions found.");
+                return;
+            }
+            results.stream()
+                    .limit(10)
+                    .forEach(result -> Log.d(TAG, "LETTERS RESULT: " + result));
+        });
 
         // Start the solver
-        letSolver.solve(
-                results -> {
-                    Log.d("ZAKI", String.format("Found %d matches.", results.size()));
-
-                    if (results.size() == 0) {
-                        Log.d(TAG, "solve: No solutions found.");
-                        return;
-                    }
-                    results.stream()
-                            .limit(10)
-                            .forEach(result -> Log.d(TAG, "LETTERS RESULT: " + result));
-                }
-        );
+        new Thread(letSolver).start();
     }
 }

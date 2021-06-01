@@ -67,12 +67,7 @@ public class Number extends Fragment {
         //set view with correct inflater, set number to 0 when view is created
         v = inflater.inflate(R.layout.number, container, false);
         number.setValue(0);
-        return v;
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         // ↓ set cardlayout variable to gridlayout and set the other UI components, as well as the viewmodels
         cardGridLayout = v.findViewById(R.id.gridlayout);
         gameViewModel = new ViewModelProvider(requireActivity()).get(Gamestate_viewmodel.class);
@@ -175,6 +170,14 @@ public class Number extends Fragment {
         // pb.setMax(gameViewModel.timerDuration);
         pb.setMax((gameViewModel.timerDuration - 1) / 1000);
         number.observe(requireActivity() , pb::setProgress);
+        return v;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+
     }
 
     public void startTimer(View w) {
@@ -216,22 +219,20 @@ public class Number extends Fragment {
 
     public void solve (ArrayList numbers, int target) {
         // set up the solver
-        numSolver.setInput(numbers, target);
+        numSolver.setInput(numbers, target, results -> {
+            Log.d("ZAKI", String.format("Found %d matches.", results.size()));
+
+            if (results.size() == 0) {
+                Log.d(TAG, "solver: No solutions found.");
+                return;
+            }
+            results.stream()
+                    .limit(1)
+                    .forEach(result -> {}); //Log.d(TAG, "solverResult: " + result) VOEG ZE TOE AAN LIST
+        });
 
         // Start the solver
-        numSolver.solve(
-                results -> {
-                    Log.d("ZAKI", String.format("Found %d matches.", results.size()));
-
-                    if (results.size() == 0) {
-                        Log.d(TAG, "solver: No solutions found.");
-                        return;
-                    }
-                    results.stream()
-                            .limit(1)
-                            .forEach(result -> Log.d(TAG, "solverResul: " + result));
-                }
-        );
+        new Thread(numSolver).start();
     }
 
 }

@@ -14,7 +14,8 @@ public class Number_viewmodel extends ViewModel{
     // set the highnumbers list to pick one from later on
     public MutableLiveData<ArrayList<Integer>> numberArray;
     Integer[] highNums = {10, 25, 50, 75, 100};
-    ArrayList highList = new ArrayList<Integer>(Arrays.asList(highNums));
+    ArrayList<Integer> highList = new ArrayList<>(Arrays.asList(highNums));
+    MutableLiveData<ArrayList<String>> results = new MutableLiveData<ArrayList<String>>();
 
     // see if the number array is empty, and set on if it is empty. otherwise, return the current number array
     public MutableLiveData<ArrayList<Integer>> getNumbers(){

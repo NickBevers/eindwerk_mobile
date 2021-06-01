@@ -17,17 +17,11 @@ public class NumberSolver extends Solver<Integer, String> {
         // intentionally left blank
     }
 
-    public void setInput(List<Integer> input_list, float target) {
-
+    public void setInput(List<Integer> input_list, float target, SolverResultCallback<String> resultCallback) {
+        this.resultCallback = resultCallback;
         this.input_list = input_list;
         this.target = target;
 
-    }
-
-    @Override
-    public void solve(SolverResultCallback<String> resultCallback) {
-        this.resultCallback = resultCallback;
-        this.run();
     }
 
     @Override
