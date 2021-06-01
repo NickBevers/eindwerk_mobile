@@ -20,10 +20,15 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import be.bluebanana.zakisolver.NumberSolver;
+
+import static android.content.ContentValues.TAG;
 
 public class Number extends Fragment {
     // Add all variables (no database structure)
@@ -49,6 +54,7 @@ public class Number extends Fragment {
     int thirdRound = 2;
     int randomNumLimit = 900; //Highest possible number to be generated for Number rounds
     int DELAY = 1000;
+    NumberSolver numSolver = new NumberSolver();
 
     public Number() {
         // Required empty public constructor
@@ -159,6 +165,7 @@ public class Number extends Fragment {
                 targetNum = randomNum;
                 tv.setText(String.format(Locale.ENGLISH, "Number to reach: %d", targetNum));
                 startTimer(requireView());
+                solver(numberArray, randomNum);
             }
         });
 
@@ -166,7 +173,7 @@ public class Number extends Fragment {
         //pb::setProgress == (number -> pb.setProgress(number)
         //pb.setMax(gameViewModel.timerDuration);
         // pb.setMax(gameViewModel.timerDuration);
-        pb.setMax(gameViewModel.timerDuration / 1000);
+        pb.setMax((gameViewModel.timerDuration - 1) / 1000);
         number.observe(requireActivity() , pb::setProgress);
     }
 
@@ -205,6 +212,26 @@ public class Number extends Fragment {
         Number_viewmodel numberViewModel = new ViewModelProvider(requireActivity()).get(Number_viewmodel.class);
         super.onDestroyView();
         numberViewModel.clearNumber();
+    }
+
+    public void solver (ArrayList numbers, int target) {
+        // set up the solver
+        numSolver.setInput(numbers, target);
+
+        // Start the solver
+        numSolver.solve(
+                results -> {
+                    Log.d("ZAKI", String.format("Found %d matches.", results.size()));
+
+                    if (results.size() == 0) {
+                        Log.d(TAG, "solver: No solutions found.");
+                        return;
+                    }
+                    results.stream()
+                            .limit(1)
+                            .forEach(result -> Log.d(TAG, "solverResul: " + result));
+                }
+        );
     }
 
 }
