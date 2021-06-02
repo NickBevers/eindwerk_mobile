@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.ArrayList;
@@ -170,22 +169,17 @@ public class Number extends Fragment {
                 ronde = gameViewModel.getRound();
                 //Log.d(TAG, "ROUND: " + ronde.getValue());
                 if (ronde.getValue().equals(firstRound)){
-                    Log.d("TAG", "ronde: 0");
                     ((MainActivity) requireActivity()).setRound(secondRound);
                 }
                 else if(ronde.getValue().equals(secondRound)){
-                    Log.d("TAG", "ronde: 1");
                     ((MainActivity) requireActivity()).setRound(thirdRound);
                 }
                 else if(ronde.getValue().equals(thirdRound)) {
-                    Log.d("TAG", "ronde: 2");
-                    Log.d(TAG, "CHECKGAMES: " + gameViewModel.numberOfGames.getValue());
-                    Log.d(TAG, "CHECKGAMES: " + gameViewModel.gameType);
-                    if(gameViewModel.gameType < gameViewModel.numberOfGames.getValue()){
+                    if(gameViewModel.amountOfRounds < gameViewModel.numberOfGames.getValue()){
                         ((MainActivity) requireActivity()).setRound(overview);
-                        gameViewModel.gameType++;
+                        gameViewModel.amountOfRounds++;
                     }
-                    else if(gameViewModel.gameType.equals(gameViewModel.numberOfGames.getValue())){
+                    else if(gameViewModel.amountOfRounds.equals(gameViewModel.numberOfGames.getValue())){
                         ((MainActivity) requireActivity()).setRound(endingScreen);
                     }
 

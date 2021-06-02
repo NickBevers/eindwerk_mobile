@@ -8,8 +8,8 @@ public class Gamestate_viewmodel extends ViewModel{
     public String name_Player_1;
     public String name_Player_2;
     public MutableLiveData<Integer> round;
-    public Integer roundNum = 0;
-    public Integer gameType = 1;
+    public Integer gameNum = 0;
+    public Integer amountOfRounds = 1;
     public int scorePlayer1 = 0;
     public int scorePlayer2 = 0;
     public MutableLiveData<Integer> numberOfGames = new MutableLiveData<>(1); //Amount of games to be played
@@ -25,7 +25,7 @@ public class Gamestate_viewmodel extends ViewModel{
         // get the current round
         if (round == null) {
             round = new MutableLiveData<Integer> ();
-            round.postValue(roundNum);
+            round.postValue(gameNum);
         }
         return round;
     }
@@ -64,6 +64,6 @@ public class Gamestate_viewmodel extends ViewModel{
     }
 
     public void setGame(int num){
-        gameType = num;
+        amountOfRounds = num;
     }
 }

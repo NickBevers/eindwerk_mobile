@@ -20,8 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Timer;
@@ -48,7 +46,7 @@ public class Letter extends Fragment {
     int firstRound = 0;
     int secondRound = 1;
     int thirdRound = 2;
-    String resultString = "Possible solutions were: \n";
+    String resultString = "Possible solutions were: ";
     View v;
     Gamestate_viewmodel gameViewModel;
     Timer t = new Timer();
@@ -161,7 +159,7 @@ public class Letter extends Fragment {
             }
 
             else if(checkActionToDo == 2){
-                gameViewModel.setGame(gameViewModel.gameType++);
+                gameViewModel.setGame(gameViewModel.amountOfRounds++);
                 ronde = gameViewModel.getRound();
                 //Log.d(TAG, "ROUND: " + ronde.getValue());
                 if (ronde.getValue().equals(firstRound)){
@@ -246,6 +244,7 @@ public class Letter extends Fragment {
     public void onDestroyView() {
         // ↓ empty the 2 textfields at ondestroyview so that they're empty
         super.onDestroyView();
+        solutions.clear();
         letterViewModel.clearLetter();
     }
 
