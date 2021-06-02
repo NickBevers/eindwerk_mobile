@@ -127,7 +127,7 @@ public class Letter_viewmodel extends AndroidViewModel {
                 is = this.getApplication().getApplicationContext().getResources().openRawResource(fileToOpen);
                 // if the string contains letters not from the letterarray, it isn't valid
                 if (wordList.size() < userText.length()){
-                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication().getApplicationContext(), getApplication().getApplicationContext().getResources().getString(R.string.invalid), Toast.LENGTH_SHORT).show());
+                    //new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication().getApplicationContext(), getApplication().getApplicationContext().getResources().getString(R.string.invalid), Toast.LENGTH_SHORT).show());
                     res = false;
                 }
 

@@ -7,13 +7,13 @@ public class Gamestate_viewmodel extends ViewModel{
     // initiate all variables needed for the game
     public String name_Player_1;
     public String name_Player_2;
-    public MutableLiveData<Integer> round;
     public Integer gameNum = 0;
     public Integer amountOfRounds = 1;
-    public int scorePlayer1 = 0;
-    public int scorePlayer2 = 0;
+    public MutableLiveData<Integer> round;
     public MutableLiveData<Integer> numberOfGames = new MutableLiveData<>(1); //Amount of games to be played
     public MutableLiveData<Boolean> gameStarted= new MutableLiveData<>(false);
+    public int scorePlayer1 = 0;
+    public int scorePlayer2 = 0;
     public int timerDuration = 10000; // timer duration in milliseconds
     public int player1Difference;
     public int player2Difference;

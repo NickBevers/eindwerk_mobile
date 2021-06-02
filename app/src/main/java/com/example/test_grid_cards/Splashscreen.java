@@ -14,14 +14,12 @@ public class Splashscreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splashscreen);
 
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 // set a timer to switch the splashscreen to the mainactivity after a period (1 second)
                 Intent i = new Intent(Splashscreen.this, MainActivity.class);
                 startActivity(i);
-
                 finish();
             }
         }, DELAY);

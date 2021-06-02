@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,29 +32,32 @@ import be.bluebanana.zakisolver.NumberSolver;
 import static android.content.ContentValues.TAG;
 
 public class Number extends Fragment {
-    // Add all variables (no database structure)
-    public GridLayout cardGridLayout;
+    // ↓ Viewmodel variables
     View v;
     Gamestate_viewmodel gameViewModel;
     Number_viewmodel numberViewModel;
+
+    // ↓ Variables for the layout elements
     Button btn_Check;
     Button btn_High;
     Button btn_Low;
+    TextView tv_results;
+    TextView namePlayer1;
+    TextView namePlayer2;
+    TextView tv_player1;
+    TextView tv_player2;
+    EditText editText1;
+    EditText editText2;
+    ProgressBar pb;
+
+    // ↓ Variables for local
+    public GridLayout cardGridLayout;
+    public MutableLiveData<Integer> number = new MutableLiveData<>();
     int num_player1;
     int num_player2;
     int targetNum;
     int checkActionToDo;
-    TextView tv_results;
-    EditText editText1;
-    EditText editText2;
-    String resultString;
-    Timer t = new Timer();
-    private static final int PERIOD = 1000;
-    public MutableLiveData<Integer> number = new MutableLiveData<Integer>();
-    ProgressBar pb;
-    MutableLiveData<Integer> ronde;
-    Random random = new Random();
-    public int randomNum;
+    int randomNum;
     int firstRound = 0;
     int secondRound = 1;
     int thirdRound = 2;
@@ -61,8 +65,13 @@ public class Number extends Fragment {
     int endingScreen = 4;
     int randomNumLimit = 900; //Highest possible number to be generated for Number rounds
     int DELAY = 1000;
+    int PERIOD = 1000;
+    String resultString;
+    Timer t = new Timer();
+    MutableLiveData<Integer> ronde;
+    Random random = new Random();
     NumberSolver numSolver = new NumberSolver();
-    ArrayList<String> solutions = new ArrayList<>();;
+    ArrayList<String> solutions = new ArrayList<>();
 
     public Number() {
         // Required empty public constructor
@@ -86,8 +95,8 @@ public class Number extends Fragment {
         tv_results = v.findViewById(R.id.tv_results);
 
 
-        TextView namePlayer1 = v.findViewById(R.id.tv_player1);
-        TextView namePlayer2 = v.findViewById(R.id.tv_player2);
+        namePlayer1 = v.findViewById(R.id.tv_player1);
+        namePlayer2 = v.findViewById(R.id.tv_player2);
         namePlayer1.setText(gameViewModel.name_Player_1);
         namePlayer2.setText(gameViewModel.name_Player_2);
 
@@ -96,28 +105,16 @@ public class Number extends Fragment {
         btn_Low = v.findViewById(R.id.btn_low_number);
 
         // set textviews to correct layout element and set the player scores
-        TextView tv_player1 = v.findViewById(R.id.score_player1);
-        TextView tv_player2 = v.findViewById(R.id.score_player2);
+        tv_player1 = v.findViewById(R.id.score_player1);
+        tv_player2 = v.findViewById(R.id.score_player2);
         tv_player1.setText(String.format(Locale.ENGLISH,"Score: %d", gameViewModel.scorePlayer1));
         tv_player2.setText(String.format(Locale.ENGLISH,"Score: %d", gameViewModel.scorePlayer2));
 
 
         // ↓ set button onclicklisteners
-        btn_Low.setOnClickListener(view -> {
-            numberViewModel.pickLowNumber();
-            //Log.d("TAG", "LOW");
-        });
-
-        btn_High.setOnClickListener(view -> {
-            //Log.d("TAG", "HIGH");
-            numberViewModel.pickHighNumber();
-        });
-
-        numberViewModel.results.observe(getViewLifecycleOwner(), strings -> {
-            strings.forEach(string->{
-                resultString += tv_results.getText() + "\n" + string;
-            });
-        });
+        btn_Low.setOnClickListener(view -> numberViewModel.pickLowNumber());
+        btn_High.setOnClickListener(view -> numberViewModel.pickHighNumber());
+        numberViewModel.results.observe(getViewLifecycleOwner(), strings -> strings.forEach(string-> resultString += tv_results.getText() + "\n" + string));
 
         btn_Check.setOnClickListener(view -> {
             if(checkActionToDo == 0){
@@ -143,38 +140,36 @@ public class Number extends Fragment {
 
                     // ↓ if both players have a number filled in, check which player has the closest answer to the random number, and award that player a point
                     if (result == 0){
-                        // show win of player 1
                         new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_LONG).show());
                     }
                     else if (result == 1){
-                        // show win of player 2
                         new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player2_win), Toast.LENGTH_LONG).show());
                     }
                     else {
-                        // show that there's a draw
                         new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.draw), Toast.LENGTH_LONG).show());
                     }
                 }
                 checkActionToDo++;
-                btn_Check.setText("Show possible solutions");
+                btn_Check.setText(R.string.possible_solutions);
             }
 
             else if(checkActionToDo == 1){
                 tv_results.setText(resultString);
                 checkActionToDo++;
-                btn_Check.setText("Next Round");
+                btn_Check.setText(R.string.next_round);
             }
             else if(checkActionToDo == 2){
                 // ↓ if the last game is on it's way, set the ending screen after the letter-round
                 ronde = gameViewModel.getRound();
                 //Log.d(TAG, "ROUND: " + ronde.getValue());
-                if (ronde.getValue().equals(firstRound)){
+                if (Objects.equals(ronde.getValue(), firstRound)){
                     ((MainActivity) requireActivity()).setRound(secondRound);
                 }
                 else if(ronde.getValue().equals(secondRound)){
                     ((MainActivity) requireActivity()).setRound(thirdRound);
                 }
                 else if(ronde.getValue().equals(thirdRound)) {
+                    assert gameViewModel.numberOfGames.getValue() != null;
                     if(gameViewModel.amountOfRounds < gameViewModel.numberOfGames.getValue()){
                         ((MainActivity) requireActivity()).setRound(overview);
                         gameViewModel.amountOfRounds++;
@@ -182,10 +177,8 @@ public class Number extends Fragment {
                     else if(gameViewModel.amountOfRounds.equals(gameViewModel.numberOfGames.getValue())){
                         ((MainActivity) requireActivity()).setRound(endingScreen);
                     }
-
                 }
             }
-
         });
 
 
@@ -216,9 +209,6 @@ public class Number extends Fragment {
         });
 
         // update the progressbar according to the number(timer)
-        //pb::setProgress == (number -> pb.setProgress(number)
-        //pb.setMax(gameViewModel.timerDuration);
-        // pb.setMax(gameViewModel.timerDuration);
         pb.setMax((gameViewModel.timerDuration / 1000)-1);
         number.observe(requireActivity() , pb::setProgress);
         return v;
@@ -231,6 +221,7 @@ public class Number extends Fragment {
             @Override
             public void run() {
                 if (System.currentTimeMillis() - startTime <= gameViewModel.timerDuration) {
+                    assert number.getValue() != null;
                     number.postValue(number.getValue() + 1);
                 }
                 else {

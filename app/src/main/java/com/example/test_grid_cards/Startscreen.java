@@ -2,12 +2,10 @@ package com.example.test_grid_cards;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +15,15 @@ import android.widget.NumberPicker;
 
 import org.jetbrains.annotations.NotNull;
 
-import static android.content.ContentValues.TAG;
-
 public class Startscreen extends Fragment {
+    // ↓ variables for layout elements
     NumberPicker np;
     Gamestate_viewmodel gamestate_viewmodel;
     Button btn_ready;
     EditText et_player1;
     EditText et_player2;
+
+    // ↓ variables for locally used functions
     int gamesToPlay;
 
     public Startscreen() {
@@ -33,8 +32,7 @@ public class Startscreen extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.activity_startscreen, container, false);
         gamestate_viewmodel = new ViewModelProvider(requireActivity()).get(Gamestate_viewmodel.class);
@@ -58,21 +56,18 @@ public class Startscreen extends Fragment {
             gamestate_viewmodel.numberOfGames.postValue(gamesToPlay);
         });
 
-        btn_ready.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gamestate_viewmodel.name_Player_1 = et_player1.getText().toString();
-                gamestate_viewmodel.name_Player_2 = et_player2.getText().toString();
+        btn_ready.setOnClickListener(v -> {
+            gamestate_viewmodel.name_Player_1 = et_player1.getText().toString();
+            gamestate_viewmodel.name_Player_2 = et_player2.getText().toString();
 
-                if(et_player1.getText().toString().equals("")){
-                    gamestate_viewmodel.name_Player_1 = "John Doe";
-                }
-                if(et_player2.getText().toString().equals("")){
-                    gamestate_viewmodel.name_Player_2 = "Jane Doe";
-                }
-
-                gamestate_viewmodel.gameStarted.setValue(true);
+            if(et_player1.getText().toString().equals("")){
+                gamestate_viewmodel.name_Player_1 = "John Doe";
             }
+            if(et_player2.getText().toString().equals("")){
+                gamestate_viewmodel.name_Player_2 = "Jane Doe";
+            }
+
+            gamestate_viewmodel.gameStarted.setValue(true);
         });
 
     }

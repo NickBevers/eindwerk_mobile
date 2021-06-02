@@ -13,12 +13,12 @@ import android.widget.TextView;
 
 
 public class NewRound extends Fragment {
+    int firstround = 0;
     Button btn_next;
     TextView tv_name_player1;
     TextView tv_name_player2;
     TextView tv_score_player1;
     TextView tv_score_player2;
-    int firstround = 0;
     Gamestate_viewmodel gameViewModel;
 
 
@@ -41,11 +41,9 @@ public class NewRound extends Fragment {
         tv_score_player1.setText(String.valueOf(gameViewModel.scorePlayer1));
         tv_score_player2.setText(String.valueOf(gameViewModel.scorePlayer2));
 
-
         btn_next.setOnClickListener(view ->{
             ((MainActivity) requireActivity()).setRound(firstround);
         });
-
 
         return v;
     }

@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -31,32 +32,41 @@ import static android.content.ContentValues.TAG;
 
 public class Letter extends Fragment {
     // Add all variables (no database structure)
-    public GridLayout cardGridLayout;
     private static final int PERIOD = 1000;
     private static final int DELAY = 1000;
-    public MutableLiveData<Integer> letter = new MutableLiveData<Integer>();
+    private final int maxLetters = 9;
     public boolean result1;
     public boolean result2;
-    private final int maxLetters = 9;
-    TextView tv_results;
-    Button btn_Check;
-    final LetterSolver letSolver = new LetterSolver();
-    ArrayList<String> solutions = new ArrayList<>();
+    public GridLayout cardGridLayout;
+    public MutableLiveData<Integer> letter = new MutableLiveData<>();
+    boolean resultPlayer1;
+    boolean resultPlayer2;
     int checkActionToDo = 0;
     int firstRound = 0;
     int secondRound = 1;
     int thirdRound = 2;
-    String resultString = "Possible solutions were: ";
+
+    // ↓ Variables from the viewmodels/imported modules
     View v;
+    Letter_viewmodel letterViewModel;
     Gamestate_viewmodel gameViewModel;
-    Timer t = new Timer();
-    MutableLiveData<Integer> ronde;
+    LetterSolver letSolver = new LetterSolver();
+
+    // ↓ Variables from the layout of the fragment
+    String text1;
+    String text2;
+    String resultString = "Possible solutions were: ";
+    TextView tv_results;
     EditText editText1;
     EditText editText2;
-    Letter_viewmodel letterViewModel;
+    Button btn_Check;
+
+    // ↓ Variables used only in this file
+    Timer t = new Timer();
+    MutableLiveData<Integer> ronde;
+    ArrayList<String> solutions = new ArrayList<>();
 
     public Letter() {
-        // Required empty public constructor
         super(R.layout.letter);
     }
 
@@ -68,7 +78,6 @@ public class Letter extends Fragment {
         v = inflater.inflate(R.layout.letter, container, false);
         gameViewModel = new ViewModelProvider(requireActivity()).get(Gamestate_viewmodel.class);
         letterViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication())).get(Letter_viewmodel.class);
-        //letterViewModel = new ViewModelProvider(requireActivity()).get(Letter_viewmodel.class);
         letter.setValue(0);
         editText1 = v.findViewById(R.id.et_player1);
         editText2 = v.findViewById(R.id.et_player2);
@@ -91,29 +100,19 @@ public class Letter extends Fragment {
         tv_player2.setText(String.format(Locale.ENGLISH,"Score: %d", gameViewModel.scorePlayer2));
 
         // ↓ set onclicklisteners for the buttons
-        v.findViewById(R.id.btn_vowel).setOnClickListener(view -> {
-            letterViewModel.pickVowel();
-        });
-
-        v.findViewById(R.id.btn_consonant).setOnClickListener(view -> {
-            letterViewModel.pickConsonant();
-        });
-
-        letterViewModel.results.observe(getViewLifecycleOwner(), strings -> {
-            strings.forEach(string->{
-                resultString += tv_results.getText() + ", " + string;
-            });
-        });
+        v.findViewById(R.id.btn_vowel).setOnClickListener(view -> letterViewModel.pickVowel());
+        v.findViewById(R.id.btn_consonant).setOnClickListener(view -> letterViewModel.pickConsonant());
+        letterViewModel.results.observe(getViewLifecycleOwner(), strings -> strings.forEach(string -> resultString += tv_results.getText() + ", " + string));
 
 
         btn_Check.setOnClickListener(view -> {
             if (checkActionToDo == 0){
-                String text1 = String.valueOf(editText1.getText());
-                String text2 = String.valueOf(editText2.getText());
+                text1 = String.valueOf(editText1.getText());
+                text2 = String.valueOf(editText2.getText());
 
                 // check the given word to see if it exists and contains only letters from the cards
-                boolean resultPlayer1 = letterViewModel.checkText(text1, result1);
-                boolean resultPlayer2 = letterViewModel.checkText(text2, result2);
+                resultPlayer1 = letterViewModel.checkText(text1, result1);
+                resultPlayer2 = letterViewModel.checkText(text2, result2);
 
                 // set a toast for the winner depending on who won the round
                 // continue only if both players have given a valid solution
@@ -133,6 +132,7 @@ public class Letter extends Fragment {
                         gameViewModel.winPlayer2();
                     }
                 }
+
                 //if only 1 player has given a valid solution, the other player wins
                 else if (resultPlayer1 && !resultPlayer2){
                     new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_SHORT).show());
@@ -149,33 +149,26 @@ public class Letter extends Fragment {
                     new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.no_winner), Toast.LENGTH_SHORT).show());
                 }
                 checkActionToDo++;
-                btn_Check.setText("Show possible solutions");
+                btn_Check.setText(R.string.possible_solutions);
             }
 
             else if(checkActionToDo == 1){
                 tv_results.setText(resultString);
                 checkActionToDo++;
-                btn_Check.setText("Next Round");
+                btn_Check.setText(R.string.next_round);
             }
 
             else if(checkActionToDo == 2){
                 gameViewModel.setGame(gameViewModel.amountOfRounds++);
                 ronde = gameViewModel.getRound();
-                //Log.d(TAG, "ROUND: " + ronde.getValue());
-                if (ronde.getValue().equals(firstRound)){
-                    Log.d("TAG", "ronde: 0");
-                    //gameViewModel.round.postValue(secondRound);
+                if (Objects.requireNonNull(ronde.getValue()).equals(firstRound)){
                     ((MainActivity) requireActivity()).setRound(secondRound);
                 }
                 else if(ronde.getValue().equals(secondRound)){
-                    Log.d("TAG", "ronde: 1");
                     ((MainActivity) requireActivity()).setRound(thirdRound);
-                    //gameViewModel.setRound(thirdRound);
                 }
                 else {
-                    Log.d("TAG", "ronde: 2");
                     ((MainActivity) requireActivity()).setRound(firstRound);
-                    //gameViewModel.setRound(firstRound);
                 }
             }
         });
@@ -191,38 +184,33 @@ public class Letter extends Fragment {
             }
 
             if (letterArray.size() == maxLetters){
-                startTimer(requireView());
+                startTimer();
                 solve(letterArray);
             }
         });
 
         // ↓ set progressbar to correct UI element and set the value of the pb
         ProgressBar pb = requireActivity().findViewById(R.id.progress_bar);
-        //pb::setProgress == (number -> pb.setProgress(number);
-        pb.setMax((gameViewModel.timerDuration/1000)-1);
+        pb.setMax((gameViewModel.timerDuration/1000) -1);
         letter.observe(requireActivity() , pb::setProgress);
         return v;
     }
 
 
-    public void startTimer(View w) {
+    public void startTimer() {
         // ↓ start the timer and set it's value to the current value of letter + 1
         long startTime = System.currentTimeMillis();
         t.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 if (System.currentTimeMillis() - startTime <= gameViewModel.timerDuration) {
+                    assert letter.getValue() != null;
                     letter.postValue(letter.getValue() + 1);
                 } else {
 
-                    btn_Check.getHandler().post(new Runnable() {
-                        public void run() {
-                            btn_Check.setVisibility(View.VISIBLE);
-                        }
-                    });
+                    //lambda function instead of new runnable
+                    btn_Check.getHandler().post(() -> btn_Check.setVisibility(View.VISIBLE));
                     cancel();
-                    // ↓ if time is up, compare the start the check of who is the winner
-
                 }
             }
         }, DELAY, PERIOD);
@@ -242,7 +230,7 @@ public class Letter extends Fragment {
 
     @Override
     public void onDestroyView() {
-        // ↓ empty the 2 textfields at ondestroyview so that they're empty
+        // ↓ empty the solution at OndestroyView so that they're empty
         super.onDestroyView();
         solutions.clear();
         letterViewModel.clearLetter();
