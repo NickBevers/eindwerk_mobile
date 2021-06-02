@@ -5,17 +5,21 @@ import androidx.lifecycle.ViewModel;
 
 public class Gamestate_viewmodel extends ViewModel{
     // initiate all variables needed for the game
-    private MutableLiveData<Integer> round;
+    public String name_Player_1;
+    public String name_Player_2;
+    public MutableLiveData<Integer> round;
     public Integer roundNum = 0;
-    public Integer gameType = 0;
+    public Integer gameType = 1;
     public int scorePlayer1 = 0;
     public int scorePlayer2 = 0;
-    public int numberOfGames = 1; //Amount of games to be played +1
+    public MutableLiveData<Integer> numberOfGames = new MutableLiveData<>(1); //Amount of games to be played
+    public MutableLiveData<Boolean> gameStarted= new MutableLiveData<>(false);
     public int timerDuration = 10000; // timer duration in milliseconds
     public int player1Difference;
     public int player2Difference;
     public int player1Wins = 0;
     public int player2Wins = 1;
+    public int draw = 2;
 
     public MutableLiveData<Integer> getRound() {
         // get the current round
@@ -41,7 +45,7 @@ public class Gamestate_viewmodel extends ViewModel{
             return player2Wins;
         }
 
-        return 2;
+        return draw;
     }
 
     // ↓ up the score of the correct player (the one that won)
@@ -56,6 +60,7 @@ public class Gamestate_viewmodel extends ViewModel{
     // ↓ change the round or game depending on the number that's given as parameter
     public void setRound(int num){
         round.postValue(num);
+        getRound();
     }
 
     public void setGame(int num){

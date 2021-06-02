@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ProgressBar;
@@ -34,13 +35,20 @@ public class Letter extends Fragment {
     // Add all variables (no database structure)
     public GridLayout cardGridLayout;
     private static final int PERIOD = 1000;
+    private static final int DELAY = 1000;
     public MutableLiveData<Integer> letter = new MutableLiveData<Integer>();
     public boolean result1;
     public boolean result2;
-    private int maxLetters = 9;
+    private final int maxLetters = 9;
+    TextView tv_results;
+    Button btn_Check;
     final LetterSolver letSolver = new LetterSolver();
-    private
-
+    ArrayList<String> solutions = new ArrayList<>();
+    int checkActionToDo = 0;
+    int firstRound = 0;
+    int secondRound = 1;
+    int thirdRound = 2;
+    String resultString = "Possible solutions were: \n";
     View v;
     Gamestate_viewmodel gameViewModel;
     Timer t = new Timer();
@@ -67,6 +75,15 @@ public class Letter extends Fragment {
         editText1 = v.findViewById(R.id.et_player1);
         editText2 = v.findViewById(R.id.et_player2);
         letSolver.loadDictionary(requireActivity(), R.raw.dictionary);
+        tv_results = v.findViewById(R.id.tv_results);
+        tv_results.setText("");
+        btn_Check = v.findViewById(R.id.check_button);
+        btn_Check.setVisibility(View.INVISIBLE);
+
+        TextView namePlayer1 = v.findViewById(R.id.tv_player1);
+        TextView namePlayer2 = v.findViewById(R.id.tv_player2);
+        namePlayer1.setText(gameViewModel.name_Player_1);
+        namePlayer2.setText(gameViewModel.name_Player_2);
 
         // ↓ set the layout for the 2 textfields that contain the score of both players, and set their scores in the textfields
         cardGridLayout = v.findViewById(R.id.gridlayout);
@@ -84,10 +101,91 @@ public class Letter extends Fragment {
             letterViewModel.pickConsonant();
         });
 
+        letterViewModel.results.observe(getViewLifecycleOwner(), strings -> {
+            strings.forEach(string->{
+                resultString += tv_results.getText() + ", " + string;
+            });
+        });
+
+
+        btn_Check.setOnClickListener(view -> {
+            if (checkActionToDo == 0){
+                String text1 = String.valueOf(editText1.getText());
+                String text2 = String.valueOf(editText2.getText());
+
+                // check the given word to see if it exists and contains only letters from the cards
+                boolean resultPlayer1 = letterViewModel.checkText(text1, result1);
+                boolean resultPlayer2 = letterViewModel.checkText(text2, result2);
+
+                // set a toast for the winner depending on who won the round
+                // continue only if both players have given a valid solution
+                if (resultPlayer1 && resultPlayer2){
+                    if (text1.length() == text2.length()){
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.draw), Toast.LENGTH_SHORT).show());
+                        gameViewModel.winPlayer1();
+                        gameViewModel.winPlayer2();
+                    }
+
+                    else if (text1.length() > text2.length()){
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_SHORT).show());
+                        gameViewModel.winPlayer1();
+                    }
+                    else{
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player2_win), Toast.LENGTH_SHORT).show());
+                        gameViewModel.winPlayer2();
+                    }
+                }
+                //if only 1 player has given a valid solution, the other player wins
+                else if (resultPlayer1 && !resultPlayer2){
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_SHORT).show());
+                    gameViewModel.winPlayer1();
+                }
+
+                else if (!resultPlayer1 && resultPlayer2){
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player2_win), Toast.LENGTH_SHORT).show());
+                    gameViewModel.winPlayer2();
+                }
+
+                // if neither player has given a valid solution, there will be no points
+                else{
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.no_winner), Toast.LENGTH_SHORT).show());
+                }
+                checkActionToDo++;
+                btn_Check.setText("Show possible solutions");
+            }
+
+            else if(checkActionToDo == 1){
+                tv_results.setText(resultString);
+                checkActionToDo++;
+                btn_Check.setText("Next Round");
+            }
+
+            else if(checkActionToDo == 2){
+                gameViewModel.setGame(gameViewModel.gameType++);
+                ronde = gameViewModel.getRound();
+                //Log.d(TAG, "ROUND: " + ronde.getValue());
+                if (ronde.getValue().equals(firstRound)){
+                    Log.d("TAG", "ronde: 0");
+                    //gameViewModel.round.postValue(secondRound);
+                    ((MainActivity) requireActivity()).setRound(secondRound);
+                }
+                else if(ronde.getValue().equals(secondRound)){
+                    Log.d("TAG", "ronde: 1");
+                    ((MainActivity) requireActivity()).setRound(thirdRound);
+                    //gameViewModel.setRound(thirdRound);
+                }
+                else {
+                    Log.d("TAG", "ronde: 2");
+                    ((MainActivity) requireActivity()).setRound(firstRound);
+                    //gameViewModel.setRound(firstRound);
+                }
+            }
+        });
+
         // ↓ check if the letterArray (cards in cardview) contains 9 letters
         // if not so, draw a new card, if so, start a timer
         letterViewModel.getLetters().observe(getViewLifecycleOwner(), letterArray -> {
-            if (letterArray.size() > 0 && letterArray.size() < maxLetters){
+            if (letterArray.size() > 0 && letterArray.size() <= maxLetters){
                 View cardView = getLayoutInflater().inflate(R.layout.cardlayout, cardGridLayout, false);
                 TextView tv = cardView.findViewById(R.id.number_card_text);
                 tv.setText(String.valueOf(letterArray.get(letterArray.size()-1)));
@@ -103,7 +201,7 @@ public class Letter extends Fragment {
         // ↓ set progressbar to correct UI element and set the value of the pb
         ProgressBar pb = requireActivity().findViewById(R.id.progress_bar);
         //pb::setProgress == (number -> pb.setProgress(number);
-        pb.setMax(gameViewModel.timerDuration);
+        pb.setMax((gameViewModel.timerDuration/1000)-1);
         letter.observe(requireActivity() , pb::setProgress);
         return v;
     }
@@ -115,74 +213,23 @@ public class Letter extends Fragment {
         t.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                int game = gameViewModel.gameType;
                 if (System.currentTimeMillis() - startTime <= gameViewModel.timerDuration) {
                     letter.postValue(letter.getValue() + 1);
                 } else {
+
+                    btn_Check.getHandler().post(new Runnable() {
+                        public void run() {
+                            btn_Check.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    cancel();
                     // ↓ if time is up, compare the start the check of who is the winner
 
-                    //editText1.setFocusable(false);
-                    //editText2.setFocusable(false);
-                    String text1 = String.valueOf(editText1.getText());
-                    String text2 = String.valueOf(editText2.getText());
-
-                    // check the given word to see if it exists and contains only letters from the cards
-                    boolean resultPlayer1 = letterViewModel.checkText(text1, result1);
-                    boolean resultPlayer2 = letterViewModel.checkText(text2, result2);
-
-                    // set a toast for the winner depending on who won the round
-                    if (game != gameViewModel.numberOfGames){
-                        // continue only if both players have given a valid solution
-                        if (resultPlayer1 && resultPlayer2){
-                            if (text1.length() == text2.length()){
-                                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.draw), Toast.LENGTH_SHORT).show());
-                                gameViewModel.winPlayer1();
-                                gameViewModel.winPlayer2();
-                            }
-
-                            if (text1.length() > text2.length()){
-                                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_SHORT).show());
-                                gameViewModel.winPlayer1();
-                            }
-                            else{
-                                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player2_win), Toast.LENGTH_SHORT).show());
-                                gameViewModel.winPlayer2();
-                            }
-                        }
-                        //if only 1 player has given a valid solution, the other player wins
-                        else if (resultPlayer1 && !resultPlayer2){
-                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_SHORT).show());
-                            gameViewModel.winPlayer1();
-                        }
-
-                        else if (!resultPlayer1 && resultPlayer2){
-                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player2_win), Toast.LENGTH_SHORT).show());
-                            gameViewModel.winPlayer2();
-                        }
-
-                        // if neither player has given a valid solution, there will be no points
-                        else{
-                            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.no_winner), Toast.LENGTH_SHORT).show());
-                        }
-                    }
-
-
-                    game += 1;
-                    gameViewModel.setGame(game);
-                    Log.d("TAG", "GAME: " + game);
-                    if (game < gameViewModel.numberOfGames){
-                        ((MainActivity) requireActivity()).setRound(0);
-                    }
-                    else {
-                        ((MainActivity) requireActivity()).setRound(3);
-                    }
-
-                    cancel();
                 }
-
             }
-        }, 1000, PERIOD);
+        }, DELAY, PERIOD);
     }
+
 
     @Override
     public void onStart() {
@@ -190,6 +237,9 @@ public class Letter extends Fragment {
         super.onStart();
         editText1.setText("");
         editText2.setText("");
+        tv_results.setText("");
+        checkActionToDo = 0;
+        resultString = "Possible solutions were: ";
     }
 
     @Override
@@ -199,7 +249,7 @@ public class Letter extends Fragment {
         letterViewModel.clearLetter();
     }
 
-    public void solve (ArrayList letters) {
+    public void solve (ArrayList<Character> letters) {
         // set up the solver
         letSolver.setInput(letters, results -> {
             Log.d("ZAKI", String.format("Found %d matches.", results.size()));
@@ -209,8 +259,12 @@ public class Letter extends Fragment {
                 return;
             }
             results.stream()
-                    .limit(10)
-                    .forEach(result -> Log.d(TAG, "LETTERS RESULT: " + result));
+                    .limit(3)
+                    .forEach(result -> {
+                        solutions.add(result);
+                        Log.d(TAG, "solve: " + solutions);
+                    });
+            letterViewModel.results.postValue(solutions);
         });
 
         // Start the solver

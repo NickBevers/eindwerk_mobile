@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Test_grid_cards</string>
-    <string name="player1_name">John Doe</string>
-    <string name="player2_name">Jane Doe</string>
 
     <!--Toast messages-->
     <string name="invalid">Your word is not valid!</string>
@@ -16,5 +14,11 @@
     <string name="vowel">Vowel</string>
     <string name="consonant">Consonant</string>
     <string name="check">Check</string>
+    <string name="next">Next Round</string>
+    <string name="points_overview">The points after this round: </string>
+    <string name="ready">Ready</string>
+    <string name="player1">Name player 1</string>
+    <string name="player2">Name player 2</string>
+    <string name="amount_games">Amount of rounds to be played:</string>
 
 </resources>

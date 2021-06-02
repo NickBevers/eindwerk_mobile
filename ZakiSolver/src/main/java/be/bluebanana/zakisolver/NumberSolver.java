@@ -21,7 +21,6 @@ public class NumberSolver extends Solver<Integer, String> {
         this.resultCallback = resultCallback;
         this.input_list = input_list;
         this.target = target;
-
     }
 
     @Override

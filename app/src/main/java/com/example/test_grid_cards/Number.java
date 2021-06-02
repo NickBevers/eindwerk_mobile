@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.ArrayList;
@@ -37,11 +38,16 @@ public class Number extends Fragment {
     Gamestate_viewmodel gameViewModel;
     Number_viewmodel numberViewModel;
     Button btn_Check;
+    Button btn_High;
+    Button btn_Low;
     int num_player1;
     int num_player2;
     int targetNum;
+    int checkActionToDo;
+    TextView tv_results;
     EditText editText1;
     EditText editText2;
+    String resultString;
     Timer t = new Timer();
     private static final int PERIOD = 1000;
     public MutableLiveData<Integer> number = new MutableLiveData<Integer>();
@@ -52,9 +58,12 @@ public class Number extends Fragment {
     int firstRound = 0;
     int secondRound = 1;
     int thirdRound = 2;
+    int overview = 3;
+    int endingScreen = 4;
     int randomNumLimit = 900; //Highest possible number to be generated for Number rounds
     int DELAY = 1000;
     NumberSolver numSolver = new NumberSolver();
+    ArrayList<String> solutions = new ArrayList<>();;
 
     public Number() {
         // Required empty public constructor
@@ -75,9 +84,17 @@ public class Number extends Fragment {
         editText1 = v.findViewById(R.id.et_player1);
         editText2 = v.findViewById(R.id.et_player2);
         pb = requireActivity().findViewById(R.id.progress_bar);
+        tv_results = v.findViewById(R.id.tv_results);
+
+
+        TextView namePlayer1 = v.findViewById(R.id.tv_player1);
+        TextView namePlayer2 = v.findViewById(R.id.tv_player2);
+        namePlayer1.setText(gameViewModel.name_Player_1);
+        namePlayer2.setText(gameViewModel.name_Player_2);
 
         btn_Check = v.findViewById(R.id.check_button);
-        btn_Check.setVisibility(View.INVISIBLE);
+        btn_High = v.findViewById(R.id.btn_high_number);
+        btn_Low = v.findViewById(R.id.btn_low_number);
 
         // set textviews to correct layout element and set the player scores
         TextView tv_player1 = v.findViewById(R.id.score_player1);
@@ -87,60 +104,96 @@ public class Number extends Fragment {
 
 
         // ↓ set button onclicklisteners
-        v.findViewById(R.id.btn_low_number).setOnClickListener(view -> {
+        btn_Low.setOnClickListener(view -> {
             numberViewModel.pickLowNumber();
             //Log.d("TAG", "LOW");
         });
 
-        v.findViewById(R.id.btn_high_number).setOnClickListener(view -> {
+        btn_High.setOnClickListener(view -> {
             //Log.d("TAG", "HIGH");
             numberViewModel.pickHighNumber();
         });
 
+        numberViewModel.results.observe(getViewLifecycleOwner(), strings -> {
+            strings.forEach(string->{
+                resultString += tv_results.getText() + "\n" + string;
+            });
+        });
+
         btn_Check.setOnClickListener(view -> {
-            // ↓ if one of the players has no number filled in, the other player automatically wins the round
-            if (editText1.getText().length() == 0){
-                gameViewModel.scorePlayer2++;
-            }
-
-            if (editText2.getText().length() == 0){
-                gameViewModel.scorePlayer1++;
-            }
-
-            else{
-                // ↓ if both players have a number filled in, check which player has the closest answer to the random number, and award that player a point
-                num_player1 = Integer.parseInt(String.valueOf(editText1.getText()));
-                num_player2 = Integer.parseInt(String.valueOf(editText2.getText()));
-                int result = gameViewModel.calculateDifference(num_player1, num_player2, targetNum);
-                if (result == 0){
-                    // show win of player 1
-                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_LONG).show());
-                }
-                else if (result == 1){
-                    // show win of player 2
+            if(checkActionToDo == 0){
+                // ↓ if one of the players has no number filled in, the other player automatically wins the round
+                if (editText1.getText().length() == 0 && editText2.getText().length() > 0){
+                    gameViewModel.scorePlayer2++;
                     new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player2_win), Toast.LENGTH_LONG).show());
                 }
-                else {
-                    // show that there's a draw
-                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.draw), Toast.LENGTH_LONG).show());
+
+                else if (editText1.getText().length() > 0 && editText2.getText().length() == 0){
+                    gameViewModel.scorePlayer1++;
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_LONG).show());
+                }
+
+                else if (editText1.getText().length() == 0 && editText2.getText().length() == 0){
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.no_winner), Toast.LENGTH_LONG).show());
+                }
+
+                else{
+                    num_player1 = Integer.parseInt(String.valueOf(editText1.getText()));
+                    num_player2 = Integer.parseInt(String.valueOf(editText2.getText()));
+                    int result = gameViewModel.calculateDifference(num_player1, num_player2, targetNum);
+
+                    // ↓ if both players have a number filled in, check which player has the closest answer to the random number, and award that player a point
+                    if (result == 0){
+                        // show win of player 1
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player1_win), Toast.LENGTH_LONG).show());
+                    }
+                    else if (result == 1){
+                        // show win of player 2
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.player2_win), Toast.LENGTH_LONG).show());
+                    }
+                    else {
+                        // show that there's a draw
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.draw), Toast.LENGTH_LONG).show());
+                    }
+                }
+                checkActionToDo++;
+                btn_Check.setText("Show possible solutions");
+            }
+
+            else if(checkActionToDo == 1){
+                tv_results.setText(resultString);
+                checkActionToDo++;
+                btn_Check.setText("Next Round");
+            }
+            else if(checkActionToDo == 2){
+                // ↓ if the last game is on it's way, set the ending screen after the letter-round
+                ronde = gameViewModel.getRound();
+                //Log.d(TAG, "ROUND: " + ronde.getValue());
+                if (ronde.getValue().equals(firstRound)){
+                    Log.d("TAG", "ronde: 0");
+                    ((MainActivity) requireActivity()).setRound(secondRound);
+                }
+                else if(ronde.getValue().equals(secondRound)){
+                    Log.d("TAG", "ronde: 1");
+                    ((MainActivity) requireActivity()).setRound(thirdRound);
+                }
+                else if(ronde.getValue().equals(thirdRound)) {
+                    Log.d("TAG", "ronde: 2");
+                    Log.d(TAG, "CHECKGAMES: " + gameViewModel.numberOfGames.getValue());
+                    Log.d(TAG, "CHECKGAMES: " + gameViewModel.gameType);
+                    if(gameViewModel.gameType < gameViewModel.numberOfGames.getValue()){
+                        ((MainActivity) requireActivity()).setRound(overview);
+                        gameViewModel.gameType++;
+                    }
+                    else if(gameViewModel.gameType.equals(gameViewModel.numberOfGames.getValue())){
+                        ((MainActivity) requireActivity()).setRound(endingScreen);
+                    }
+
                 }
             }
 
-            // ↓ if the last game is on it's way, set the ending screen after the letter-round
-            ronde = gameViewModel.getRound();
-            if (ronde.getValue().equals(firstRound)){
-                //Log.d("TAG", "ronde: 0");
-                ((MainActivity) requireActivity()).setRound(secondRound);
-            }
-            else if(ronde.getValue().equals(secondRound)){
-                //Log.d("TAG", "ronde: 1");
-                ((MainActivity) requireActivity()).setRound(thirdRound);
-            }
-            else {
-                //Log.d("TAG", "ronde: 2");
-                ((MainActivity) requireActivity()).setRound(firstRound);
-            }
         });
+
 
         // ↓ observe the amount of cards in the cardview via the getNumbers function
         // if the number is not 6, draw an extra card
@@ -161,6 +214,10 @@ public class Number extends Fragment {
                 tv.setText(String.format(Locale.ENGLISH, "Number to reach: %d", targetNum));
                 startTimer(requireView());
                 solve(numberArray, randomNum);
+                btn_High.setEnabled(false);
+                btn_High.setVisibility(View.INVISIBLE);
+                btn_Low.setEnabled(false);
+                btn_Low.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -168,16 +225,9 @@ public class Number extends Fragment {
         //pb::setProgress == (number -> pb.setProgress(number)
         //pb.setMax(gameViewModel.timerDuration);
         // pb.setMax(gameViewModel.timerDuration);
-        pb.setMax((gameViewModel.timerDuration - 1) / 1000);
+        pb.setMax((gameViewModel.timerDuration / 1000)-1);
         number.observe(requireActivity() , pb::setProgress);
         return v;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-
     }
 
     public void startTimer(View w) {
@@ -205,8 +255,17 @@ public class Number extends Fragment {
     public void onStart() {
         // ↓ empty the 2 textfields at onstart so that they're emptied after a round switch
         super.onStart();
+        btn_Check.setText("Check");
+        btn_Check.setVisibility(View.INVISIBLE);
+        btn_High.setEnabled(true);
+        btn_High.setVisibility(View.VISIBLE);
+        btn_Low.setEnabled(true);
+        btn_Low.setVisibility(View.VISIBLE);
         editText1.setText("");
         editText2.setText("");
+        tv_results.setText("");
+        checkActionToDo = 0;
+        resultString = "Possible solutions were: ";
     }
 
     @Override
@@ -215,9 +274,10 @@ public class Number extends Fragment {
         Number_viewmodel numberViewModel = new ViewModelProvider(requireActivity()).get(Number_viewmodel.class);
         super.onDestroyView();
         numberViewModel.clearNumber();
+        solutions.clear();
     }
 
-    public void solve (ArrayList numbers, int target) {
+    public void solve (ArrayList<Integer> numbers, int target) {
         // set up the solver
         numSolver.setInput(numbers, target, results -> {
             Log.d("ZAKI", String.format("Found %d matches.", results.size()));
@@ -227,8 +287,13 @@ public class Number extends Fragment {
                 return;
             }
             results.stream()
-                    .limit(1)
-                    .forEach(result -> {}); //Log.d(TAG, "solverResult: " + result) VOEG ZE TOE AAN LIST
+                    .limit(3)
+                    .forEach(result -> {
+                        solutions.add(result);
+                        Log.d(TAG, "solve: " + solutions);
+                    });
+            numberViewModel.results.postValue(solutions);
+            //Log.d(TAG, "solverResult: " + numberViewModel.results);
         });
 
         // Start the solver

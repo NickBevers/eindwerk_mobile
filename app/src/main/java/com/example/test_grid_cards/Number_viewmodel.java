@@ -15,7 +15,7 @@ public class Number_viewmodel extends ViewModel{
     public MutableLiveData<ArrayList<Integer>> numberArray;
     Integer[] highNums = {10, 25, 50, 75, 100};
     ArrayList<Integer> highList = new ArrayList<>(Arrays.asList(highNums));
-    MutableLiveData<ArrayList<String>> results = new MutableLiveData<ArrayList<String>>();
+    MutableLiveData<ArrayList<String>> results = new MutableLiveData<>();
 
     // see if the number array is empty, and set on if it is empty. otherwise, return the current number array
     public MutableLiveData<ArrayList<Integer>> getNumbers(){

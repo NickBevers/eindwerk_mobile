@@ -24,6 +24,7 @@ public class Letter_viewmodel extends AndroidViewModel {
     int randomLetter = 26; // choose a number that corresponds with  letter of the alphabet
     int numberToAdd = 97; // number to add to get lowercase a in ASCII table
     int minWordLength = 2; // there are no valid words with less then 2 characters
+    MutableLiveData<ArrayList<String>> results = new MutableLiveData<>();
 
     public Letter_viewmodel(@NonNull Application application) {
         super(application);
