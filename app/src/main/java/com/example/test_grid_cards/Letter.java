@@ -55,11 +55,14 @@ public class Letter extends Fragment {
     // ↓ Variables from the layout of the fragment
     String text1;
     String text2;
-    String resultString = "Possible solutions were: ";
+    String resultString = "Possible solutions were:";
     TextView tv_results;
     EditText editText1;
     EditText editText2;
     Button btn_Check;
+    Button btn_consonant;
+    Button btn_vowel;
+    ProgressBar pb;
 
     // ↓ Variables used only in this file
     Timer t = new Timer();
@@ -86,23 +89,33 @@ public class Letter extends Fragment {
         tv_results.setText("");
         btn_Check = v.findViewById(R.id.check_button);
         btn_Check.setVisibility(View.INVISIBLE);
+        btn_consonant = v.findViewById(R.id.btn_consonant);
+        btn_vowel = v.findViewById(R.id.btn_vowel);
+        pb = requireActivity().findViewById(R.id.progress_bar);
 
         TextView namePlayer1 = v.findViewById(R.id.tv_player1);
         TextView namePlayer2 = v.findViewById(R.id.tv_player2);
         namePlayer1.setText(gameViewModel.name_Player_1);
         namePlayer2.setText(gameViewModel.name_Player_2);
 
-        // ↓ set the layout for the 2 textfields that contain the score of both players, and set their scores in the textfields
+        // ↓ set the layout for the 2 textfields that contain the score of both players, and set their scores in the TextFields
         cardGridLayout = v.findViewById(R.id.gridlayout);
         TextView tv_player1 = v.findViewById(R.id.score_player1);
         TextView tv_player2 = v.findViewById(R.id.score_player2);
         tv_player1.setText(String.format(Locale.ENGLISH,"Score: %d", gameViewModel.scorePlayer1));
         tv_player2.setText(String.format(Locale.ENGLISH,"Score: %d", gameViewModel.scorePlayer2));
 
-        // ↓ set onclicklisteners for the buttons
-        v.findViewById(R.id.btn_vowel).setOnClickListener(view -> letterViewModel.pickVowel());
-        v.findViewById(R.id.btn_consonant).setOnClickListener(view -> letterViewModel.pickConsonant());
-        letterViewModel.results.observe(getViewLifecycleOwner(), strings -> strings.forEach(string -> resultString += tv_results.getText() + ", " + string));
+        // ↓ set onClickListeners for the buttons
+        btn_vowel.setOnClickListener(view -> letterViewModel.pickVowel());
+        btn_consonant.setOnClickListener(view -> letterViewModel.pickConsonant());
+        letterViewModel.results.observe(getViewLifecycleOwner(), strings -> {
+            StringBuilder tempString = new StringBuilder();
+            resultString += "\n";
+            for (int i=0; i < strings.size()-1; i++){
+                tempString.append(strings.get(i)).append(", ");
+            }
+            resultString += tempString + strings.get(strings.size()-1);
+        });
 
 
         btn_Check.setOnClickListener(view -> {
@@ -184,13 +197,14 @@ public class Letter extends Fragment {
             }
 
             if (letterArray.size() == maxLetters){
+                btn_consonant.setVisibility(View.INVISIBLE);
+                btn_vowel.setVisibility(View.INVISIBLE);
                 startTimer();
                 solve(letterArray);
             }
         });
 
         // ↓ set progressbar to correct UI element and set the value of the pb
-        ProgressBar pb = requireActivity().findViewById(R.id.progress_bar);
         pb.setMax((gameViewModel.timerDuration/1000) -1);
         letter.observe(requireActivity() , pb::setProgress);
         return v;
@@ -226,6 +240,8 @@ public class Letter extends Fragment {
         tv_results.setText("");
         checkActionToDo = 0;
         resultString = "Possible solutions were: ";
+        btn_consonant.setVisibility(View.VISIBLE);
+        btn_vowel.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -245,9 +261,7 @@ public class Letter extends Fragment {
             }
             results.stream()
                     .limit(3)
-                    .forEach(result -> {
-                        solutions.add(result);
-                    });
+                    .forEach(result -> solutions.add(result));
             letterViewModel.results.postValue(solutions);
         });
 

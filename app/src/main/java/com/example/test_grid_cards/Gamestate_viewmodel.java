@@ -14,7 +14,7 @@ public class Gamestate_viewmodel extends ViewModel{
     public MutableLiveData<Boolean> gameStarted= new MutableLiveData<>(false);
     public int scorePlayer1 = 0;
     public int scorePlayer2 = 0;
-    public int timerDuration = 10000; // timer duration in milliseconds
+    public int timerDuration = 30000; // timer duration in milliseconds
     public int player1Difference;
     public int player2Difference;
     public int player1Wins = 0;
@@ -34,7 +34,6 @@ public class Gamestate_viewmodel extends ViewModel{
         // check which player is closest to the desired number to get the winner
         player1Difference = Math.abs(num1- target);
         player2Difference = Math.abs(num2- target);
-
         if (player1Difference < player2Difference){
             scorePlayer1++;
             return player1Wins;
@@ -44,7 +43,6 @@ public class Gamestate_viewmodel extends ViewModel{
             scorePlayer2++;
             return player2Wins;
         }
-
         return draw;
     }
 

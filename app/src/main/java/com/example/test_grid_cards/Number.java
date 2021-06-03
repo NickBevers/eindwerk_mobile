@@ -200,9 +200,7 @@ public class Number extends Fragment {
                 tv.setText(String.format(Locale.ENGLISH, "Number to reach: %d", targetNum));
                 startTimer(requireView());
                 solve(numberArray, randomNum);
-                btn_High.setEnabled(false);
                 btn_High.setVisibility(View.INVISIBLE);
-                btn_Low.setEnabled(false);
                 btn_Low.setVisibility(View.INVISIBLE);
             }
         });
@@ -241,9 +239,7 @@ public class Number extends Fragment {
         super.onStart();
         btn_Check.setText("Check");
         btn_Check.setVisibility(View.INVISIBLE);
-        btn_High.setEnabled(true);
         btn_High.setVisibility(View.VISIBLE);
-        btn_Low.setEnabled(true);
         btn_Low.setVisibility(View.VISIBLE);
         editText1.setText("");
         editText2.setText("");
