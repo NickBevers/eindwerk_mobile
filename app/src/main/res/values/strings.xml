@@ -22,5 +22,6 @@
     <string name="amount_games">Amount of rounds to be played:</string>
     <string name="possible_solutions">Show possible solutions</string>
     <string name="next_round">Next Round</string>
+    <string name="play_again">Play Again</string>
 
 </resources>

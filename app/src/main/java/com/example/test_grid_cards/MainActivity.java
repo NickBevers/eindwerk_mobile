@@ -54,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.frag_player, ending_frag)
                                 .commit();
+                    } else if(round.equals(5)){
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.frag_player, start_frag)
+                                .commit();
                     }
                 });
             }
