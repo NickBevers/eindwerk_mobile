@@ -9,7 +9,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Test_grid_cards">
-        <activity android:name=".Startscreen"></activity>
         <!-- Set splashscreen as launcher intent so that it appears at startup -->
         <activity android:name=".Splashscreen">
             <intent-filter>

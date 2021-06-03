@@ -44,7 +44,6 @@ public class Startscreen extends Fragment {
         np.setEnabled(true);
         np.setMaxValue(10);
         np.setMinValue(1);
-
         return v;
     }
 

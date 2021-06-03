@@ -161,7 +161,6 @@ public class Number extends Fragment {
             else if(checkActionToDo == 2){
                 // ↓ if the last game is on it's way, set the ending screen after the letter-round
                 ronde = gameViewModel.getRound();
-                //Log.d(TAG, "ROUND: " + ronde.getValue());
                 if (Objects.equals(ronde.getValue(), firstRound)){
                     ((MainActivity) requireActivity()).setRound(secondRound);
                 }
@@ -265,8 +264,6 @@ public class Number extends Fragment {
     public void solve (ArrayList<Integer> numbers, int target) {
         // set up the solver
         numSolver.setInput(numbers, target, results -> {
-            Log.d("ZAKI", String.format("Found %d matches.", results.size()));
-
             if (results.size() == 0) {
                 Log.d(TAG, "solver: No solutions found.");
                 return;
@@ -275,10 +272,8 @@ public class Number extends Fragment {
                     .limit(3)
                     .forEach(result -> {
                         solutions.add(result);
-                        Log.d(TAG, "solve: " + solutions);
                     });
             numberViewModel.results.postValue(solutions);
-            //Log.d(TAG, "solverResult: " + numberViewModel.results);
         });
 
         // Start the solver

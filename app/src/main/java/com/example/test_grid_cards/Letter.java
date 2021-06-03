@@ -239,8 +239,6 @@ public class Letter extends Fragment {
     public void solve (ArrayList<Character> letters) {
         // set up the solver
         letSolver.setInput(letters, results -> {
-            Log.d("ZAKI", String.format("Found %d matches.", results.size()));
-
             if (results.size() == 0) {
                 Log.d(TAG, "solve: No solutions found.");
                 return;
@@ -249,7 +247,6 @@ public class Letter extends Fragment {
                     .limit(3)
                     .forEach(result -> {
                         solutions.add(result);
-                        Log.d(TAG, "solve: " + solutions);
                     });
             letterViewModel.results.postValue(solutions);
         });

@@ -1,25 +1,19 @@
 package com.example.test_grid_cards;
 
 import android.app.Application;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 public class Letter_viewmodel extends AndroidViewModel {
     // ↓ set all variables needed
     public MutableLiveData<ArrayList<Character>> letterArray;
-    public String randomWord = "TESTER";
     InputStream is;
     int randomLetter = 26; // choose a number that corresponds with  letter of the alphabet
     int numberToAdd = 97; // number to add to get lowercase a in ASCII table
@@ -33,8 +27,8 @@ public class Letter_viewmodel extends AndroidViewModel {
     // check if the letterarray contains any characters, and return it
     public MutableLiveData<ArrayList<Character>> getLetters(){
         if (letterArray == null){
-            letterArray = new MutableLiveData<ArrayList<Character>>();
-            letterArray.setValue(new ArrayList<Character>());
+            letterArray = new MutableLiveData<>();
+            letterArray.setValue(new ArrayList<>());
         }
         return letterArray;
     }
@@ -42,7 +36,7 @@ public class Letter_viewmodel extends AndroidViewModel {
     // pick a random letter from an ascii table
     public char pickALetter() {
         Random random = new Random();
-        int ascii = random.nextInt(randomLetter) + numberToAdd;; // lowercase 'a'
+        int ascii = random.nextInt(randomLetter) + numberToAdd; // lowercase 'a'
         return (char)ascii;
     }
 
@@ -87,7 +81,6 @@ public class Letter_viewmodel extends AndroidViewModel {
                 c = pickALetter();
             } while (!isConsonant(c));
             list.add(c);
-            //Log.d("TAG", "pickConsonant: LISTLIST" + list.size());
             letterArray.setValue(list);
         }
     }
@@ -105,8 +98,6 @@ public class Letter_viewmodel extends AndroidViewModel {
         try {
             // a word must contani at least 2 letters, if not it isn't a word
             if (userText.length() < minWordLength) {
-                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication().getApplicationContext(), getApplication().getApplicationContext().getResources().getString(R.string.invalid), Toast.LENGTH_SHORT).show());
-                //Log.i("TAG", "TOOO SHORT");
                 res = false;
             }
             else{
